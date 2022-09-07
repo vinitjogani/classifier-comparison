@@ -1,16 +1,16 @@
 import numpy as np
 from tqdm import tqdm
 from collections import defaultdict
-
 from sklearn.model_selection import KFold
-from sklearn.metrics import f1_score, auc, precision_recall_curve
+from sklearn.metrics import roc_auc_score, auc, precision_recall_curve, log_loss
 
 
 def pr_auc_score(true, pred, average="macro"):
     aucs = []
     counts = []
     for class_ in range(pred.shape[1]):
-        precision, recall, _ = precision_recall_curve(true == class_, pred[:, class_])
+        precision, recall, _ = precision_recall_curve(true == class_,
+                                                      pred[:, class_])
         aucs.append(auc(recall, precision))
         counts.append((true == class_).sum())
 
@@ -20,26 +20,24 @@ def pr_auc_score(true, pred, average="macro"):
         return sum(np.array(aucs) * np.array(counts) / sum(counts))
 
 
-def get_metrics(true, pred, threshold=0.5):
+def get_metrics(true, pred):
     label = pred.argmax(axis=1)
-
     accuracy = (true == label).mean()
-    f1 = f1_score(true, pred.argmax(axis=1), average="macro")
+    true_onehot = np.zeros_like(pred)
+    for c in true.unique():
+        true_onehot[true == c, c] = 1
+    roc = roc_auc_score(true_onehot, pred, average="macro", multi_class="ovr")
     pr = pr_auc_score(true, pred, average="macro")
-
-    return {
-        "Accuracy": accuracy,
-        "F1": f1,
-        "AUPRC": pr,
-    }
+    return {"Accuracy": accuracy, "AUROC": roc, "AUPRC": pr}
 
 
-def create_model_fn(model_cls, kwargs):
+def create_model_fn(model_cls, args, **kwargs):
+
     def model_fn(X_train, y_train, X_val, y_val):
-        model = model_cls(**kwargs)
+        model = model_cls(**args)
         model.fit(X_train, y_train)
         pred = model.predict_proba(X_val)
-        return get_metrics(y_val, pred)
+        return get_metrics(y_val, pred, **kwargs)
 
     return model_fn
 
