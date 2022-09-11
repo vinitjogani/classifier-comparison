@@ -3,26 +3,9 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.metrics import auc, make_scorer, precision_recall_curve
+from sklearn.metrics import auc, make_scorer, precision_recall_curve, roc_auc_score
 from sklearn.model_selection import GridSearchCV
 import datasets
-
-
-def pr_auc_score(y_true, y_score, average="macro"):
-    aucs = []
-    counts = []
-    for class_ in range(y_score.shape[1]):
-        precision, recall, _ = precision_recall_curve(
-            y_true[:, class_] == 1,
-            y_score[:, class_],
-        )
-        aucs.append(auc(recall, precision))
-        counts.append((y_true[:, class_] == 1).sum())
-
-    if average == "macro":
-        return sum(aucs) / len(aucs)
-    else:
-        return sum(np.array(aucs) * np.array(counts) / sum(counts))
 
 
 def onehot(true):
@@ -32,6 +15,27 @@ def onehot(true):
     return true_onehot
 
 
+def friendly_auroc(y_true, y_score):
+    return roc_auc_score(onehot(y_true), y_score)
+
+
+def pr_auc_score(y_true, y_score, average="macro"):
+    aucs = []
+    counts = []
+    for class_ in range(y_score.shape[1]):
+        precision, recall, _ = precision_recall_curve(
+            y_true == class_,
+            y_score[:, class_],
+        )
+        aucs.append(auc(recall, precision))
+        counts.append((y_true == class_).sum())
+
+    if average == "macro":
+        return sum(aucs) / len(aucs)
+    else:
+        return sum(np.array(aucs) * np.array(counts) / sum(counts))
+
+
 def grid_search(X_train, y_train, model, **kwargs):
     gs = GridSearchCV(
         model,
@@ -39,14 +43,14 @@ def grid_search(X_train, y_train, model, **kwargs):
         n_jobs=4,
         scoring={
             "accuracy": "accuracy",
-            "auroc": "roc_auc",
-            "auprc": make_scorer(pr_auc_score, needs_threshold=True),
+            "auroc": make_scorer(friendly_auroc, needs_proba=True),
+            "auprc": make_scorer(pr_auc_score, needs_proba=True),
         },
         cv=5,
         refit="auprc",
     )
 
-    gs.fit(X_train, onehot(y_train))
+    gs.fit(X_train, y_train)
     return pd.DataFrame(gs.cv_results_)
 
 
