@@ -10,7 +10,8 @@ def grid_search(X_train, y_train, model_cls, grid={}, **kwargs):
         return [metrics]
 
     for arg in kwargs:
-        if arg in grid: continue
+        if arg in grid:
+            continue
         break
 
     out = []
@@ -29,13 +30,13 @@ def plot(df, x, xlabel, grouping, log=True):
         r1 = df[df[grouping] == g]
         r1 = r1.groupby(x, as_index=False).max()
         ax[0].plot(r1[x], r1.Accuracy, label=g)
-        ax[0].set_ylabel('Accuracy')
+        ax[0].set_ylabel("Accuracy")
         ax[1].plot(r1[x], r1.AUROC, label=g)
-        ax[1].set_ylabel('AUROC')
+        ax[1].set_ylabel("AUROC")
         ax[2].plot(r1[x], r1.AUPRC, label=g)
-        ax[2].set_ylabel('AUPRC')
+        ax[2].set_ylabel("AUPRC")
         if log:
-            plt.xscale('log', basex=2)
+            plt.xscale("log", basex=2)
 
     for a in ax:
         a.legend()

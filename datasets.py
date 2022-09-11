@@ -122,3 +122,11 @@ def load_credit_score():
     test = transform(test_df), test_df["Credit_Score"]
 
     return train, test
+
+
+def load_dataset(name):
+    if name == "credit_score":
+        return load_credit_score()
+    elif name == "term_deposits":
+        return load_term_deposits()
+    raise ValueError("Dataset not found.")
