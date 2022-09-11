@@ -23,6 +23,7 @@ def grid_search(X_train, y_train, model_cls, grid={}, **kwargs):
 
 
 def plot(df, x, xlabel, grouping, log=True):
+    plt.style.use("ggplot")
     fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
     ax[-1].set_xlabel(xlabel)
 
@@ -36,9 +37,9 @@ def plot(df, x, xlabel, grouping, log=True):
         ax[2].plot(r1[x], r1.AUPRC, label=g)
         ax[2].set_ylabel("AUPRC")
         if log:
-            plt.xscale("log", basex=2)
+            plt.xscale("log", base=2)
 
     for a in ax:
         a.legend()
-
+    fig.tight_layout()
     return fig
