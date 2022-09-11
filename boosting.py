@@ -1,34 +1,38 @@
-import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
-
-import datasets
-from experiments import grid_search, plot
+from evaluate import run_trials
 
 
 def pruning_trials(dataset):
-    (X_train, y_train), _ = datasets.load_dataset(dataset)
+    MAX_ITER = {
+        "credit_score": [100, 200, 300, 400],
+        "term_deposits": [25, 50, 100, 150],
+    }
 
-    readings = pd.DataFrame(
-        grid_search(
-            X_train,
-            y_train,
-            HistGradientBoostingClassifier,
-            max_leaf_nodes=[8, 16, 32, 64, 128],
-            l2_regularization=[0.35],
-            learning_rate=[0.035],
-            validation_fraction=[None],
-            max_iter=[25, 50, 100, 150],
-        )
+    MAX_LEAF_NODES = {
+        "credit_score": [64, 128, 256, 512, 1024],
+        "term_deposits": [8, 16, 32, 64, 128],
+    }
+
+    run_trials(
+        HistGradientBoostingClassifier(
+            l2_regularization=0.35,
+            learning_rate=0.035,
+            validation_fraction=None,
+        ),
+        "neighbors",
+        dataset,
+        model_args=dict(
+            max_leaf_nodes=MAX_LEAF_NODES[dataset],
+            max_iter=MAX_ITER[dataset],
+        ),
+        plot_args=dict(
+            x="param_max_leaf_nodes",
+            xlabel="Max Leaf Nodes",
+            grouping="param_max_iter",
+        ),
     )
-    readings.to_csv(f"readings/boosting_pruning_{dataset}.csv", index=False)
-
-    fig = plot(readings, "max_leaf_nodes", "Max Leaf Nodes", "max_iter", dataset)
-    fig.savefig(f"readings/boosting_pruning_{dataset}.png")
 
 
 if __name__ == "__main__":
-    # neighbor_trials("credit_score")
-    # neighbor_trials("term_deposits")
-
     pruning_trials("credit_score")
     pruning_trials("term_deposits")
