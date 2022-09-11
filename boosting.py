@@ -19,7 +19,7 @@ def pruning_trials(dataset):
             learning_rate=0.035,
             validation_fraction=None,
         ),
-        "neighbors",
+        "pruning",
         dataset,
         model_args=dict(
             max_leaf_nodes=MAX_LEAF_NODES[dataset],
