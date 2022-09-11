@@ -22,10 +22,11 @@ def grid_search(X_train, y_train, model_cls, grid={}, **kwargs):
     return out
 
 
-def plot(df, x, xlabel, grouping, log=True):
+def plot(df, x, xlabel, grouping, dataset, log=True):
     plt.style.use("ggplot")
     fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
     ax[-1].set_xlabel(xlabel)
+    ax[0].set_title(dataset)
 
     for g in df[grouping].unique():
         r1 = df[df[grouping] == g]

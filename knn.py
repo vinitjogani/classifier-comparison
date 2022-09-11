@@ -17,7 +17,7 @@ def trials(dataset):
             weights=["uniform", "distance"],
         ),
     )
-    fig = plot(readings, "n_neighbors", "Neighbors (K)", "weights")
+    fig = plot(readings, "n_neighbors", "Neighbors (K)", "weights", dataset)
 
     readings.to_csv(f"readings/knn_{dataset}.csv", index=False)
     fig.savefig(f"readings/knn_{dataset}.png")
