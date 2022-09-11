@@ -80,8 +80,9 @@ def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
     return fig
 
 
-def run_trials(model, experiment, dataset, model_args, plot_args):
+def run_trials(model, experiment, dataset, model_args, plot_args, clean_readings=None):
     model_name = model.__module__.split(".")[1]
+    print(f"Running {experiment} experiment on {dataset} with {model_name}...")
     output = f"readings/{model_name}_{experiment}_{dataset}.csv"
 
     if not os.path.exists(output):
@@ -90,6 +91,9 @@ def run_trials(model, experiment, dataset, model_args, plot_args):
         readings.to_csv(output, index=False)
     else:
         readings = pd.read_csv(output)
+
+    if clean_readings:
+        clean_readings(readings)
 
     fig = plot(readings, dataset=dataset, **plot_args)
     fig.savefig(output.replace(".csv", ".png"))

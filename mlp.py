@@ -2,17 +2,19 @@ import pandas as pd
 from sklearn.neural_network import MLPClassifier
 
 import datasets
-from experiments import grid_search, plot
+from evaluate import run_trials
 
 
 def size_trials(dataset):
-    (X_train, y_train), _ = datasets.load_dataset(dataset)
+    def clean_readings(readings):
+        readings["param_n_layers"] = readings["hidden_layer_sizes"].map(len)
+        readings["param_n_units"] = readings["hidden_layer_sizes"].map(lambda x: x[0])
 
-    readings = pd.DataFrame(
-        grid_search(
-            X_train,
-            y_train,
-            MLPClassifier,
+    run_trials(
+        MLPClassifier(early_stopping=True),
+        "size",
+        dataset,
+        model_args=dict(
             hidden_layer_sizes=[
                 (64,),
                 (128,),
@@ -27,20 +29,16 @@ def size_trials(dataset):
                 (256, 128, 64),
                 (512, 256, 128),
             ],
-            early_stopping=[True],
-        )
+        ),
+        plot_args=dict(
+            x="param_n_units",
+            xlabel="Hidden Units",
+            grouping="param_n_layers",
+        ),
+        clean_readings=clean_readings,
     )
-    readings["n_layers"] = readings["hidden_layer_sizes"].map(len)
-    readings["n_units"] = readings["hidden_layer_sizes"].map(lambda x: x[0])
-    readings.to_csv(f"readings/mlp_size_{dataset}.csv", index=False)
-
-    fig = plot(readings, "n_units", "Hidden Units", "n_layers", dataset)
-    fig.savefig(f"readings/mlp_size_{dataset}.png")
 
 
 if __name__ == "__main__":
-    # neighbor_trials("credit_score")
-    # neighbor_trials("term_deposits")
-
     size_trials("credit_score")
     size_trials("term_deposits")
