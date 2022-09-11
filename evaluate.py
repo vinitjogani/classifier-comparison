@@ -1,9 +1,11 @@
-import numpy as np
-from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import make_scorer
-from sklearn.metrics import auc, precision_recall_curve
-import pandas as pd
+import os
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.metrics import auc, make_scorer, precision_recall_curve
+from sklearn.model_selection import GridSearchCV
+import datasets
 
 
 def pr_auc_score(y_true, y_score, average="macro"):
@@ -76,3 +78,18 @@ def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
 
     fig.tight_layout()
     return fig
+
+
+def run_trials(model, experiment, dataset, model_args, plot_args):
+    model_name = model.__module__.split(".")[1]
+    output = f"readings/{model_name}_{experiment}_{dataset}.csv"
+
+    if not os.path.exists(output):
+        (X_train, y_train), _ = datasets.load_dataset(dataset)
+        readings = grid_search(X_train, y_train, model, **model_args)
+        readings.to_csv(output, index=False)
+    else:
+        readings = pd.read_csv(output)
+
+    fig = plot(readings, dataset=dataset, **plot_args)
+    fig.savefig(output.replace(".csv", ".png"))
