@@ -36,7 +36,7 @@ def grid_search(X_train, y_train, model, **kwargs):
     gs = GridSearchCV(
         model,
         kwargs,
-        n_jobs=-1,
+        n_jobs=4,
         scoring={
             "accuracy": "accuracy",
             "auroc": "roc_auc",
