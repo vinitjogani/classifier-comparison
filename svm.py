@@ -39,5 +39,5 @@ def kernel_trials(dataset):
 
 
 if __name__ == "__main__":
-    # kernel_trials("credit_score")
+    kernel_trials("credit_score")
     kernel_trials("term_deposits")
