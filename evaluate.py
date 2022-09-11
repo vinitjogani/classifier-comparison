@@ -56,6 +56,10 @@ def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
     ax[-1].set_xlabel(xlabel)
     ax[0].set_title(dataset)
 
+    if grouping not in df.columns:
+        df = df.copy()
+        df[grouping] = 1
+
     def plotter(axis, *args, **kwargs):
         getattr(axis, fn)(*args, **kwargs)
 

@@ -6,7 +6,7 @@ from evaluate import run_trials
 def neighbor_trials(dataset):
     run_trials(
         KNeighborsClassifier(),
-        "neighbors",
+        "k",
         dataset,
         model_args=dict(
             n_neighbors=[8, 16, 32, 64, 256, 1024, 2048],
