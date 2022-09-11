@@ -34,11 +34,11 @@ def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
     for g in df[grouping].unique():
         r1 = df[df[grouping] == g]
         r1 = r1.groupby(x, as_index=False).max()
-        plotter(ax[0], r1[x], r1.Accuracy, label=g)
+        plotter(ax[0], r1[x], r1.Accuracy, label=f"{grouping}={g}")
         ax[0].set_ylabel("Accuracy")
-        plotter(ax[1], r1[x], r1.AUROC, label=g)
+        plotter(ax[1], r1[x], r1.AUROC, label=f"{grouping}={g}")
         ax[1].set_ylabel("AUROC")
-        plotter(ax[2], r1[x], r1.AUPRC, label=g)
+        plotter(ax[2], r1[x], r1.AUPRC, label=f"{grouping}={g}")
         ax[2].set_ylabel("AUPRC")
 
         if log:
