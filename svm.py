@@ -4,11 +4,21 @@ from sklearn.svm import SVC
 
 
 class SoftmaxSVC(SVC):
+    __module__ = SVC.__module__
+
     def predict_proba(self, X):
-        logits = self.decision_function(X)
-        exp = np.exp(logits)
-        p = exp / exp.sum(axis=1, keepdims=True)
+        logits = super().decision_function(X)
+        if len(logits.shape) == 1 or logits.shape[1] == 1:
+            p = 1 / (1 + np.exp(-logits))
+            p = np.stack([1 - p, p], axis=-1)
+        else:
+            logits = logits - logits.max(axis=1, keepdims=True)
+            exp = np.exp(logits)
+            p = exp / (exp.sum(axis=1, keepdims=True) + 1e-5)
         return p
+
+    def decision_function(self, X):
+        return self.predict_proba(X)
 
 
 def kernel_trials(dataset):
@@ -29,5 +39,5 @@ def kernel_trials(dataset):
 
 
 if __name__ == "__main__":
-    kernel_trials("credit_score")
+    # kernel_trials("credit_score")
     kernel_trials("term_deposits")

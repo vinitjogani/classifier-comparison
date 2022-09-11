@@ -15,6 +15,15 @@ def onehot(true):
     return true_onehot
 
 
+def make_2d(fn):
+    def out(y_true, y_score, *args, **kwargs):
+        if len(y_score.shape) == 1:
+            y_score = np.stack([1 - y_score, y_score], axis=-1)
+        return fn(y_true, y_score, *args, **kwargs)
+
+    return out
+
+
 def friendly_auroc(y_true, y_score):
     return roc_auc_score(onehot(y_true), y_score)
 
@@ -40,11 +49,11 @@ def grid_search(X_train, y_train, model, **kwargs):
     gs = GridSearchCV(
         model,
         kwargs,
-        n_jobs=4,
+        n_jobs=1,
         scoring={
             "accuracy": "accuracy",
-            "auroc": make_scorer(friendly_auroc, needs_proba=True),
-            "auprc": make_scorer(pr_auc_score, needs_proba=True),
+            "auroc": make_scorer(make_2d(friendly_auroc), needs_proba=True),
+            "auprc": make_scorer(make_2d(pr_auc_score), needs_proba=True),
         },
         cv=5,
         refit="auprc",
