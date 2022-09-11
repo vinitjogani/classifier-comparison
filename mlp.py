@@ -1,34 +1,62 @@
-import pandas as pd
 from sklearn.neural_network import MLPClassifier
-
-import datasets
 from evaluate import run_trials
 
 
+def clean_readings(readings):
+    def tup(x):
+        if isinstance(x, tuple):
+            return x
+        else:
+            x = x.replace("(", "").replace(",)", "").replace(")", "")
+            x = tuple(map(int, x.split(",")))
+            return x
+
+    readings["param_hidden_layer_sizes"] = readings["param_hidden_layer_sizes"].map(tup)
+    readings["param_n_layers"] = readings["param_hidden_layer_sizes"].map(len)
+    readings["param_n_units"] = readings["param_hidden_layer_sizes"].map(lambda x: x[0])
+
+
 def size_trials(dataset):
-    def clean_readings(readings):
-        readings["param_n_layers"] = readings["hidden_layer_sizes"].map(len)
-        readings["param_n_units"] = readings["hidden_layer_sizes"].map(lambda x: x[0])
+
+    SIZES = {
+        "credit_score": [
+            (64,),
+            (256,),
+            (512,),
+            (1024,),
+            (2048,),
+            (128, 64),
+            (256, 128),
+            (512, 256),
+            (1024, 512),
+            (2048, 512),
+            (128, 64, 32),
+            (512, 256, 128),
+            (1024, 256, 256),
+            (2048, 256, 256),
+        ],
+        "term_deposits": [
+            (64,),
+            (128,),
+            (256,),
+            (512,),
+            (1024,),
+            (128, 64),
+            (256, 128),
+            (512, 256),
+            (1024, 512),
+            (128, 64, 32),
+            (512, 256, 128),
+            (1024, 256, 256),
+        ],
+    }
 
     run_trials(
         MLPClassifier(early_stopping=True),
         "size",
         dataset,
         model_args=dict(
-            hidden_layer_sizes=[
-                (64,),
-                (128,),
-                (256,),
-                (512,),
-                (64, 32),
-                (128, 64),
-                (256, 128),
-                (512, 256),
-                (64, 32, 16),
-                (128, 64, 32),
-                (256, 128, 64),
-                (512, 256, 128),
-            ],
+            hidden_layer_sizes=SIZES[dataset],
         ),
         plot_args=dict(
             x="param_n_units",
