@@ -34,7 +34,7 @@ def metric_trials(dataset):
             metric=["manhattan", "cosine", "l2"],
         ),
         plot_args=dict(
-            x="param_n_neighbors",
+            x="param_metric",
             xlabel="Neighbors (K)",
             grouping="param_weights",
         ),
