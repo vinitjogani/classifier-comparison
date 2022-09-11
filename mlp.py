@@ -20,7 +20,6 @@ def size_trials(dataset):
 
     SIZES = {
         "credit_score": [
-            (64,),
             (256,),
             (512,),
             (1024,),
@@ -34,6 +33,7 @@ def size_trials(dataset):
             (512, 256, 128),
             (1024, 256, 256),
             (2048, 256, 256),
+            (4096, 512, 256),
         ],
         "term_deposits": [
             (64,),

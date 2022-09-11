@@ -35,9 +35,10 @@ def metric_trials(dataset):
         ),
         plot_args=dict(
             x="param_metric",
-            xlabel="Neighbors (K)",
+            xlabel="Metric",
             grouping="param_weights",
         ),
+        plotter="bar",
     )
 
 

@@ -63,7 +63,7 @@ def grid_search(X_train, y_train, model, **kwargs):
     return pd.DataFrame(gs.cv_results_)
 
 
-def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
+def plot(df, x, xlabel, grouping, dataset, log=True):
     plt.style.use("ggplot")
     fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
     ax[-1].set_xlabel(xlabel)
@@ -73,17 +73,14 @@ def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
         df = df.copy()
         df[grouping] = 1
 
-    def plotter(axis, *args, **kwargs):
-        getattr(axis, fn)(*args, **kwargs)
-
     for g in df[grouping].unique():
         r1 = df[df[grouping] == g]
         r1 = r1.groupby(x, as_index=False).max()
-        plotter(ax[0], r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
+        ax[0].plot(r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
         ax[0].set_ylabel("Accuracy")
-        plotter(ax[1], r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
+        ax[1].plot(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
         ax[1].set_ylabel("AUROC")
-        plotter(ax[2], r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
+        ax[2].plot(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
         ax[2].set_ylabel("AUPRC")
 
         if log:
@@ -97,7 +94,47 @@ def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
     return fig
 
 
-def run_trials(model, experiment, dataset, model_args, plot_args, clean_readings=None):
+def bar(df, x, xlabel, grouping, dataset):
+    plt.style.use("ggplot")
+    fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
+    for a in ax:
+        a.set_xlabel(xlabel)
+    ax[0].set_title(dataset)
+
+    if grouping not in df.columns:
+        df = df.copy()
+        df[grouping] = 1
+
+    for g in df[grouping].unique():
+        r1 = df[df[grouping] == g]
+        r1 = r1.groupby(x, as_index=False).max()
+        ax[0].bar(r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
+        ax[0].set_ylabel("Accuracy")
+        ax[0].set_ylim(r1.mean_test_accuracy.min() * 0.9)
+        ax[1].bar(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
+        ax[1].set_ylabel("AUROC")
+        ax[1].set_ylim(r1.mean_test_auroc.min() * 0.9)
+        ax[2].bar(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
+        ax[2].set_ylabel("AUPRC")
+        ax[2].set_ylim(r1.mean_test_auprc.min() * 0.9)
+
+    if len(df[grouping].unique()) > 1:
+        for a in ax:
+            a.legend()
+
+    fig.tight_layout()
+    return fig
+
+
+def run_trials(
+    model,
+    experiment,
+    dataset,
+    model_args,
+    plot_args,
+    clean_readings=None,
+    plotter="plot",
+):
     model_name = model.__module__.split(".")[1]
     print(f"Running {experiment} experiment on {dataset} with {model_name}...")
     output = f"readings/{model_name}_{experiment}_{dataset}.csv"
@@ -112,5 +149,9 @@ def run_trials(model, experiment, dataset, model_args, plot_args, clean_readings
     if clean_readings:
         clean_readings(readings)
 
-    fig = plot(readings, dataset=dataset, **plot_args)
+    if plotter == "plot":
+        fig = plot(readings, dataset=dataset, **plot_args)
+    else:
+        fig = bar(readings, dataset=dataset, **plot_args)
     fig.savefig(output.replace(".csv", ".png"))
+    return readings
