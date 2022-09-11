@@ -1,18 +1,21 @@
 import numpy as np
-from tqdm import tqdm
-from collections import defaultdict
-from sklearn.model_selection import KFold
-from sklearn.metrics import roc_auc_score, auc, precision_recall_curve, log_loss
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer
+from sklearn.metrics import auc, precision_recall_curve
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
-def pr_auc_score(true, pred, average="macro"):
+def pr_auc_score(y_true, y_score, average="macro"):
     aucs = []
     counts = []
-    for class_ in range(pred.shape[1]):
-        precision, recall, _ = precision_recall_curve(true == class_,
-                                                      pred[:, class_])
+    for class_ in range(y_score.shape[1]):
+        precision, recall, _ = precision_recall_curve(
+            y_true[:, class_] == 1,
+            y_score[:, class_],
+        )
         aucs.append(auc(recall, precision))
-        counts.append((true == class_).sum())
+        counts.append((y_true[:, class_] == 1).sum())
 
     if average == "macro":
         return sum(aucs) / len(aucs)
@@ -20,37 +23,56 @@ def pr_auc_score(true, pred, average="macro"):
         return sum(np.array(aucs) * np.array(counts) / sum(counts))
 
 
-def get_metrics(true, pred):
-    label = pred.argmax(axis=1)
-    accuracy = (true == label).mean()
-    true_onehot = np.zeros_like(pred)
+def onehot(true):
+    true_onehot = np.zeros((true.shape[0], true.max() + 1))
     for c in true.unique():
         true_onehot[true == c, c] = 1
-    roc = roc_auc_score(true_onehot, pred, average="macro", multi_class="ovr")
-    pr = pr_auc_score(true, pred, average="macro")
-    return {"Accuracy": accuracy, "AUROC": roc, "AUPRC": pr}
+    return true_onehot
 
 
-def create_model_fn(model_cls, args, **kwargs):
+def grid_search(X_train, y_train, model, **kwargs):
+    gs = GridSearchCV(
+        model,
+        kwargs,
+        n_jobs=-1,
+        scoring={
+            "accuracy": "accuracy",
+            "auroc": "roc_auc",
+            "auprc": make_scorer(pr_auc_score, needs_threshold=True),
+        },
+        cv=5,
+        refit="auprc",
+    )
 
-    def model_fn(X_train, y_train, X_val, y_val):
-        model = model_cls(**args)
-        model.fit(X_train, y_train)
-        pred = model.predict_proba(X_val)
-        return get_metrics(y_val, pred, **kwargs)
-
-    return model_fn
+    gs.fit(X_train, onehot(y_train))
+    return pd.DataFrame(gs.cv_results_)
 
 
-def cross_validate(X, y, model_fn, folds=5):
-    summary = defaultdict(int)
-    kfold = KFold(n_splits=folds, shuffle=True, random_state=0)
-    for train, val in tqdm(kfold.split(X)):
-        X_train, y_train = X[train], y.iloc[train]
-        X_val, y_val = X[val], y.iloc[val]
-        metrics = model_fn(X_train, y_train, X_val, y_val)
-        for m in metrics:
-            summary[m] += metrics[m]
-    for m in summary:
-        summary[m] /= folds
-    return dict(summary)
+def plot(df, x, xlabel, grouping, dataset, log=True, fn="plot"):
+    plt.style.use("ggplot")
+    fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
+    ax[-1].set_xlabel(xlabel)
+    ax[0].set_title(dataset)
+
+    def plotter(axis, *args, **kwargs):
+        getattr(axis, fn)(*args, **kwargs)
+
+    for g in df[grouping].unique():
+        r1 = df[df[grouping] == g]
+        r1 = r1.groupby(x, as_index=False).max()
+        plotter(ax[0], r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
+        ax[0].set_ylabel("Accuracy")
+        plotter(ax[1], r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
+        ax[1].set_ylabel("AUROC")
+        plotter(ax[2], r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
+        ax[2].set_ylabel("AUPRC")
+
+        if log:
+            plt.xscale("log", base=2)
+
+    if len(df[grouping].unique()) > 1:
+        for a in ax:
+            a.legend()
+
+    fig.tight_layout()
+    return fig

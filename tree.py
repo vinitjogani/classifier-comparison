@@ -1,26 +1,35 @@
+import os
+
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 
 import datasets
-from experiments import grid_search, plot
+from evaluate import grid_search, plot
 
 
 def pruning_trials(dataset):
-    (X_train, y_train), _ = datasets.load_dataset(dataset)
+    if not os.path.exists(f"readings/tree_pruning_{dataset}.csv"):
+        (X_train, y_train), _ = datasets.load_dataset(dataset)
 
-    readings = pd.DataFrame(
-        grid_search(
+        readings = grid_search(
             X_train,
             y_train,
-            DecisionTreeClassifier,
+            DecisionTreeClassifier(),
             min_samples_leaf=[1, 8, 16, 32, 64, 128, 256],
             max_depth=[None, 8, 16, 32, 64],
             criterion=["gini", "entropy"],
         )
-    )
-    readings.to_csv(f"readings/tree_pruning_{dataset}.csv", index=False)
+        readings.to_csv(f"readings/tree_pruning_{dataset}.csv", index=False)
+    else:
+        readings = pd.read_csv(f"readings/tree_pruning_{dataset}.csv")
 
-    fig = plot(readings, "min_samples_leaf", "Min Samples Leaf", "criterion", dataset)
+    fig = plot(
+        readings,
+        "param_min_samples_leaf",
+        "Min Samples Leaf",
+        "param_criterion",
+        dataset,
+    )
     fig.savefig(f"readings/tree_pruning_{dataset}.png")
 
 
