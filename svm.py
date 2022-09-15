@@ -22,13 +22,21 @@ class SoftmaxSVC(SVC):
 
 
 def kernel_trials(dataset):
+    KERNELS = {
+        "credit_score": ["linear", "rbf"],
+        "term_deposits": ["linear", "poly", "rbf"],
+    }
+    C = {
+        "credit_score": [0.3, 1, 3],
+        "term_deposits": [0.1, 0.3, 1, 3, 10],
+    }
     run_trials(
         SoftmaxSVC(),
         "kernel",
         dataset,
         model_args=dict(
-            kernel=["linear", "poly", "rbf"],
-            C=[0.1, 0.3, 1, 3, 10],
+            kernel=KERNELS[dataset],
+            C=C[dataset],
         ),
         plot_args=dict(
             x="param_C",
