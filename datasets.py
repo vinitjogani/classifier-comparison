@@ -29,9 +29,13 @@ def load_term_deposits():
     ]
     numeric_features = [
         "age",
-        "duration",
         "campaign",
         "pdays",
+        "emp.var.rate",
+        "cons.price.idx",
+        "cons.conf.idx",
+        "euribor3m",
+        "nr.employed",
     ]
 
     onehot_encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
