@@ -69,6 +69,35 @@ def size_trials(dataset):
     )
 
 
+def activation_trials(dataset):
+
+    SIZES = {
+        "credit_score": (512, 256, 256, 128),
+        "term_deposits": (256, 128),
+    }
+
+    run_trials(
+        MLPClassifier(
+            early_stopping=True,
+            hidden_layer_sizes=SIZES[dataset],
+        ),
+        "activation",
+        dataset,
+        model_args=dict(
+            activation=["relu", "tanh", "sigmoid"],
+        ),
+        plot_args=dict(
+            x="param_activation",
+            xlabel="Activation",
+            grouping=None,
+        ),
+        plotter="bar",
+    )
+
+
 if __name__ == "__main__":
     size_trials("credit_score")
     size_trials("term_deposits")
+
+    activation_trials("credit_score")
+    activation_trials("term_deposits")
