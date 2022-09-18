@@ -5,7 +5,7 @@ from evaluate import run_trials
 def pruning_trials(dataset):
     MAX_ITER = {
         "credit_score": [100, 200, 300, 400],
-        "term_deposits": [25, 50, 100, 150],
+        "term_deposits": [100, 200, 300, 400],
     }
 
     MAX_DEPTH = {
