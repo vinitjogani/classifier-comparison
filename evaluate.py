@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import auc, make_scorer, precision_recall_curve, roc_auc_score
 from sklearn.model_selection import GridSearchCV
+from sklearn.base import clone
 import datasets
 
 
@@ -155,3 +156,42 @@ def run_trials(
         fig = bar(readings, dataset=dataset, **plot_args)
     fig.savefig(output.replace(".csv", ".png"))
     return readings
+
+
+def learning_curves(model, X_train, y_train, X_test, y_test):
+    x = [0.2, 0.4, 0.6, 0.8, 1.0]
+    train_auc = []
+    test_auc = []
+
+    for frac in x:
+        N = X_train.shape[0]
+        n = int(N * frac)
+        sample = np.random.randint(0, N, size=n)
+        sample_X, sample_y = X_train[sample], y_train.iloc[sample]
+        model_ = clone(model)
+        model_.fit(sample_X, sample_y)
+        y_pred = model_.predict_proba(sample_X)
+        auc = pr_auc_score(sample_y, y_pred)
+        train_auc.append(auc)
+        y_pred = model_.predict_proba(X_test)
+        auc = pr_auc_score(y_test, y_pred)
+        test_auc.append(auc)
+
+    return x, train_auc, test_auc
+
+
+def iter_learning_curves(model, X_train, y_train, X_test, y_test, end_fn):
+    train_auc = []
+    test_auc = []
+
+    for _ in range(5):
+        model.fit(X_train, y_train)
+        y_pred = model.predict_proba(X_train)
+        auc = pr_auc_score(y_train, y_pred)
+        train_auc.append(auc)
+        y_pred = model.predict_proba(X_test)
+        auc = pr_auc_score(y_test, y_pred)
+        test_auc.append(auc)
+        end_fn(model)
+
+    return np.array(list(range(1, 5 + 1))), train_auc, test_auc
