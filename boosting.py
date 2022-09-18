@@ -8,9 +8,9 @@ def pruning_trials(dataset):
         "term_deposits": [25, 50, 100, 150],
     }
 
-    MAX_LEAF_NODES = {
-        "credit_score": [64, 128, 256, 512, 1024],
-        "term_deposits": [8, 16, 32, 64, 128],
+    MAX_DEPTH = {
+        "credit_score": [2, 4, 8, 12, 16, 20, 24],
+        "term_deposits": [2, 4, 8, 12, 16],
     }
 
     run_trials(
@@ -22,13 +22,14 @@ def pruning_trials(dataset):
         "pruning",
         dataset,
         model_args=dict(
-            max_leaf_nodes=MAX_LEAF_NODES[dataset],
+            max_depth=MAX_DEPTH[dataset],
             max_iter=MAX_ITER[dataset],
         ),
         plot_args=dict(
-            x="param_max_leaf_nodes",
-            xlabel="Max Leaf Nodes",
+            x="param_max_depth",
+            xlabel="Max Depth",
             grouping="param_max_iter",
+            log=False,
         ),
     )
 

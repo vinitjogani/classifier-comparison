@@ -65,7 +65,7 @@ def grid_search(X_train, y_train, model, **kwargs):
 
 def plot(df, x, xlabel, grouping, dataset, log=True):
     plt.style.use("ggplot")
-    fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
+    fig, ax = plt.subplots(nrows=2, figsize=(6, 6), sharex=True)
     ax[-1].set_xlabel(xlabel)
     ax[0].set_title(dataset)
 
@@ -78,10 +78,10 @@ def plot(df, x, xlabel, grouping, dataset, log=True):
         r1 = r1.groupby(x, as_index=False).max()
         ax[0].plot(r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
         ax[0].set_ylabel("Accuracy")
-        ax[1].plot(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
-        ax[1].set_ylabel("AUROC")
-        ax[2].plot(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
-        ax[2].set_ylabel("AUPRC")
+        # ax[1].plot(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
+        # ax[1].set_ylabel("AUROC")
+        ax[1].plot(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
+        ax[1].set_ylabel("AUPRC")
 
         if log:
             plt.xscale("log", base=2)
@@ -96,7 +96,7 @@ def plot(df, x, xlabel, grouping, dataset, log=True):
 
 def bar(df, x, xlabel, grouping, dataset):
     plt.style.use("ggplot")
-    fig, ax = plt.subplots(nrows=3, figsize=(10, 10), sharex=True)
+    fig, ax = plt.subplots(nrows=2, figsize=(6, 6), sharex=True)
     for a in ax:
         a.set_xlabel(xlabel)
     ax[0].set_title(dataset)
@@ -111,12 +111,12 @@ def bar(df, x, xlabel, grouping, dataset):
         ax[0].bar(r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
         ax[0].set_ylabel("Accuracy")
         ax[0].set_ylim(r1.mean_test_accuracy.min() * 0.9)
-        ax[1].bar(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
-        ax[1].set_ylabel("AUROC")
-        ax[1].set_ylim(r1.mean_test_auroc.min() * 0.9)
-        ax[2].bar(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
-        ax[2].set_ylabel("AUPRC")
-        ax[2].set_ylim(r1.mean_test_auprc.min() * 0.9)
+        # ax[1].bar(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
+        # ax[1].set_ylabel("AUROC")
+        # ax[1].set_ylim(r1.mean_test_auroc.min() * 0.9)
+        ax[1].bar(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
+        ax[1].set_ylabel("AUPRC")
+        ax[1].set_ylim(r1.mean_test_auprc.min() * 0.9)
 
     if len(df[grouping].unique()) > 1:
         for a in ax:

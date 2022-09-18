@@ -9,7 +9,7 @@ def neighbor_trials(dataset):
         "k",
         dataset,
         model_args=dict(
-            n_neighbors=[8, 16, 32, 64, 256, 1024, 2048],
+            n_neighbors=[128],
             weights=["uniform", "distance"],
         ),
         plot_args=dict(
