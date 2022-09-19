@@ -106,7 +106,7 @@ def best(dataset):
         return MLPClassifier(
             early_stopping=True,
             activation="relu",
-            hidden_layer_sizes=(256, 128),
+            hidden_layer_sizes=(128, 64),
         )
 
 
