@@ -1,3 +1,4 @@
+import re
 from sklearn.neural_network import MLPClassifier
 from evaluate import run_trials
 
@@ -95,24 +96,54 @@ def activation_trials(dataset):
     )
 
 
+def regularization_trials(dataset):
+
+    SIZES = {
+        "credit_score": (512, 256, 128),
+        "term_deposits": (256, 128),
+    }
+
+    ACTIVATIONS = {
+        "credit_score": "tanh",
+        "term_deposits": "relu",
+    }
+
+    run_trials(
+        MLPClassifier(
+            early_stopping=True,
+            hidden_layer_sizes=SIZES[dataset],
+            activation=ACTIVATIONS[dataset],
+        ),
+        "regularization",
+        dataset,
+        model_args=dict(alpha=[0.001, 0.01, 0.1, 1], batch_size=[32, 64, 128]),
+        plot_args=dict(
+            x="param_alpha",
+            xlabel="Alpha",
+            grouping="param_batch_size",
+        ),
+    )
+
+
 def best(dataset):
     if dataset == "credit_score":
         return MLPClassifier(
             early_stopping=True,
             activation="tanh",
             hidden_layer_sizes=(512, 256, 128),
+            alpha=0.1,
         )
     else:
         return MLPClassifier(
             early_stopping=True,
             activation="relu",
             hidden_layer_sizes=(128, 64),
+            batch_size=32,
         )
 
 
 if __name__ == "__main__":
-    size_trials("credit_score")
-    size_trials("term_deposits")
-
-    activation_trials("credit_score")
-    activation_trials("term_deposits")
+    for dataset in ["credit_score", "term_deposits"]:
+        regularization_trials(dataset)
+        size_trials(dataset)
+        activation_trials(dataset)
