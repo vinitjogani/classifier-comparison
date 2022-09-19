@@ -20,9 +20,19 @@ def pruning_trials(dataset):
     )
 
 
-if __name__ == "__main__":
-    # neighbor_trials("credit_score")
-    # neighbor_trials("term_deposits")
+def best(dataset):
+    if dataset == "credit_score":
+        return DecisionTreeClassifier(
+            min_samples_leaf=8,
+            criterion="gini",
+        )
+    else:
+        return DecisionTreeClassifier(
+            min_samples_leaf=128,
+            criterion="entropy",
+        )
 
+
+if __name__ == "__main__":
     pruning_trials("credit_score")
     pruning_trials("term_deposits")

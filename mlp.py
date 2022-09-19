@@ -72,7 +72,7 @@ def size_trials(dataset):
 def activation_trials(dataset):
 
     SIZES = {
-        "credit_score": (512, 256, 256, 128),
+        "credit_score": (512, 256, 128),
         "term_deposits": (256, 128),
     }
 
@@ -93,6 +93,21 @@ def activation_trials(dataset):
         ),
         plotter="bar",
     )
+
+
+def best(dataset):
+    if dataset == "credit_score":
+        return MLPClassifier(
+            early_stopping=True,
+            activation="tanh",
+            hidden_layer_sizes=(512, 256, 128),
+        )
+    else:
+        return MLPClassifier(
+            early_stopping=True,
+            activation="relu",
+            hidden_layer_sizes=(256, 128),
+        )
 
 
 if __name__ == "__main__":

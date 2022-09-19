@@ -34,6 +34,25 @@ def pruning_trials(dataset):
     )
 
 
+def best(dataset):
+    if dataset == "credit_score":
+        return HistGradientBoostingClassifier(
+            max_depth=8,
+            max_iter=400,
+            l2_regularization=0.35,
+            learning_rate=0.035,
+            validation_fraction=None,
+        )
+    else:
+        return HistGradientBoostingClassifier(
+            max_depth=8,
+            max_iter=100,
+            l2_regularization=0.35,
+            learning_rate=0.035,
+            validation_fraction=None,
+        )
+
+
 if __name__ == "__main__":
     pruning_trials("credit_score")
     pruning_trials("term_deposits")

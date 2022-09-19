@@ -42,6 +42,21 @@ def metric_trials(dataset):
     )
 
 
+def best(dataset):
+    if dataset == "credit_score":
+        return KNeighborsClassifier(
+            n_neighbors=16,
+            weights="distance",
+            metric="manhattan",
+        )
+    else:
+        return KNeighborsClassifier(
+            n_neighbors=64,
+            weights="uniform",
+            metric="manhattan",
+        )
+
+
 if __name__ == "__main__":
     for dataset in ["credit_score", "term_deposits"]:
         neighbor_trials(dataset)

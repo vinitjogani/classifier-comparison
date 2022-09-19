@@ -46,6 +46,19 @@ def kernel_trials(dataset):
     )
 
 
+def best(dataset):
+    if dataset == "credit_score":
+        return SoftmaxSVC(
+            kernel="rbf",
+            C=1,
+        )
+    else:
+        return SoftmaxSVC(
+            kernel="rbf",
+            C=0.125,
+        )
+
+
 if __name__ == "__main__":
     kernel_trials("credit_score")
     kernel_trials("term_deposits")
