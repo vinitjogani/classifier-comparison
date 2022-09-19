@@ -77,10 +77,22 @@ def plot(df, x, xlabel, grouping, dataset, log=True):
     for g in df[grouping].unique():
         r1 = df[df[grouping] == g]
         r1 = r1.groupby(x, as_index=False).max()
+        ax[0].fill_between(
+            r1[x],
+            r1.mean_test_accuracy - r1.std_test_accuracy,
+            r1.mean_test_accuracy + r1.std_test_accuracy,
+            alpha=0.2,
+        )
         ax[0].plot(r1[x], r1.mean_test_accuracy, label=f"{grouping}={g}")
         ax[0].set_ylabel("Accuracy")
         # ax[1].plot(r1[x], r1.mean_test_auroc, label=f"{grouping}={g}")
         # ax[1].set_ylabel("AUROC")
+        ax[1].fill_between(
+            r1[x],
+            r1.mean_test_auprc - r1.std_test_auprc,
+            r1.mean_test_auprc + r1.std_test_auprc,
+            alpha=0.2,
+        )
         ax[1].plot(r1[x], r1.mean_test_auprc, label=f"{grouping}={g}")
         ax[1].set_ylabel("AUPRC")
 

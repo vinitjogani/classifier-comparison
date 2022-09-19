@@ -147,6 +147,6 @@ def best(dataset):
 
 if __name__ == "__main__":
     for dataset in ["credit_score", "term_deposits"]:
-        regularization_trials(dataset)
+        # regularization_trials(dataset)
         size_trials(dataset)
         activation_trials(dataset)
