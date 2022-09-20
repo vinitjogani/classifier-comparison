@@ -5,10 +5,51 @@ from tree import best as best_tree
 from mlp import best as best_mlp
 from boosting import best as best_boosting
 from svm import best as best_svm
-from evaluate import learning_curves, iter_learning_curves
+from evaluate import learning_curves, iter_learning_curves, pr_auc_score
 from datasets import load_dataset
 import numpy as np
 import os
+import time
+import pandas as pd
+
+
+def summary():
+    models = {
+        "KNN": best_knn,
+        "Decision Tree": best_tree,
+        "Neural Network": best_mlp,
+        "SVM": best_svm,
+        "Boosting": best_boosting,
+    }
+    model_names = list(models)
+
+    datasets = ["credit_score", "term_deposits"]
+    out = []
+    for di, dataset in enumerate(datasets):
+        (X_train, y_train), (X_test, y_test) = load_dataset(dataset)
+
+        for mi, model_name in enumerate(model_names):
+            print(dataset, model_name)
+            model = models[model_name](dataset)
+            start = time.time()
+            model.fit(X_train, y_train)
+            fitting_time = time.time() - start
+            y_pred = model.predict_proba(X_train)
+            train_auc = pr_auc_score(y_train, y_pred)
+            start = time.time()
+            y_pred = model.predict_proba(X_test)
+            testing_time = time.time() - start
+            test_auc = pr_auc_score(y_test, y_pred)
+            out.append(
+                {
+                    "Train AUC": train_auc,
+                    "Test AUC": test_auc,
+                    "Fitting Time": fitting_time,
+                    "Testing Time": testing_time,
+                }
+            )
+
+    pd.DataFrame(out).to_csv("readings/summary.csv", index=False)
 
 
 def by_training_size():
@@ -114,5 +155,6 @@ def by_iterations():
 
 
 if __name__ == "__main__":
-    by_training_size()
-    by_iterations()
+    summary()
+    # by_training_size()
+    # by_iterations()

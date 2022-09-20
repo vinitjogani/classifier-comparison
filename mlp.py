@@ -132,18 +132,21 @@ def best(dataset):
             activation="tanh",
             hidden_layer_sizes=(512, 256, 128),
             alpha=0.1,
+            batch_size=64,
         )
     else:
         return MLPClassifier(
             early_stopping=True,
             activation="relu",
-            hidden_layer_sizes=(128, 64),
-            batch_size=32,
+            hidden_layer_sizes=(256, 128),
+            alpha=0.1,
+            batch_size=64,
+            random_state=0,
         )
 
 
 if __name__ == "__main__":
     for dataset in ["credit_score", "term_deposits"]:
-        regularization_trials(dataset)
+        # regularization_trials(dataset)
         size_trials(dataset)
         activation_trials(dataset)
