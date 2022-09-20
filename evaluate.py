@@ -64,7 +64,7 @@ def grid_search(X_train, y_train, model, **kwargs):
     return pd.DataFrame(gs.cv_results_)
 
 
-def plot(df, x, xlabel, grouping, dataset, log=True):
+def plot(df, x, xlabel, grouping, dataset, log=2):
     plt.style.use("ggplot")
     fig, ax = plt.subplots(nrows=2, figsize=(6, 6), sharex=True)
     ax[-1].set_xlabel(xlabel)
@@ -97,7 +97,7 @@ def plot(df, x, xlabel, grouping, dataset, log=True):
         ax[1].set_ylabel("AUPRC")
 
         if log:
-            plt.xscale("log", base=2)
+            plt.xscale("log", base=log)
 
     if len(df[grouping].unique()) > 1:
         for a in ax:

@@ -156,5 +156,5 @@ def by_iterations():
 
 if __name__ == "__main__":
     summary()
-    # by_training_size()
-    # by_iterations()
+    by_training_size()
+    by_iterations()
