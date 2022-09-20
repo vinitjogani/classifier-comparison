@@ -42,6 +42,7 @@ def summary():
             test_auc = pr_auc_score(y_test, y_pred)
             out.append(
                 {
+                    "Model": model_name,
                     "Train AUC": train_auc,
                     "Test AUC": test_auc,
                     "Fitting Time": fitting_time,
