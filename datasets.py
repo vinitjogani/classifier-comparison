@@ -7,7 +7,7 @@ from preprocessing import ElementsEncoder, interval_to_months
 
 
 def load_term_deposits():
-    df = pd.read_csv("term_deposits.csv")
+    df = pd.read_csv("data/term_deposits.csv")
     label_idx = {"yes": 1, "no": 0}
     df["y"] = df["y"].map(label_idx.get)
 
@@ -57,7 +57,7 @@ def load_term_deposits():
 
 
 def load_credit_score():
-    df = pd.read_csv("credit_score.csv", low_memory=False)
+    df = pd.read_csv("data/credit_score.csv", low_memory=False)
 
     # Basic cleanup
     clean_numbers = [
