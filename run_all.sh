@@ -3,3 +3,4 @@ python knn.py
 python mlp.py
 python boosting.py
 python svm.py
+python curves.py
